@@ -222,20 +222,21 @@ export default {
     // },
 
     editItem(item) {
-      this.editedIndex = this.users.indexOf(item)
+      this.editedIndex = this.tableData.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
 
     deleteItem(item) {
-      this.editedIndex = this.users.indexOf(item)
+      this.editedIndex = this.tableData.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
 
     deleteItemConfirm() {
-      this.handleDeleteUser(this.users[this.editedIndex].id);
+      this.handleDeleteUser(this.tableData.items[this.editedIndex].id);
       this.closeDelete()
+      this.fetchData();
     },
 
     close() {
@@ -256,11 +257,12 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        this.handleUpdateUser(this.users[this.editedIndex].id);
+        this.handleUpdateUser(this.tableData.items[this.editedIndex].id);
       } else {
         this.handleAddUser();
       }
       this.close()
+      this.fetchData();
     },
 
     fetchData: async function () {
@@ -293,7 +295,7 @@ export default {
 
 
         if (response.status == 200) {
-          console.log(response.data.data)
+          // console.log(response.data.data)
           this.tableData.totalItems = response.data.data.total;
           this.tableData.items = response.data.data.data;
         }
@@ -301,7 +303,6 @@ export default {
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        console.log('finally');
         this.tableData.loading = false;
       }
     },
@@ -378,7 +379,7 @@ a {
   font-size: 14px;
   text-decoration: none;
   /* padding: 5px;
-  margin: 5px; */
+    margin: 5px; */
   border-left: 1px solid var(--color-border);
 }
 

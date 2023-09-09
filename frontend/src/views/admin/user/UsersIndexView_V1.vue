@@ -1,9 +1,9 @@
 <template>
   <v-row class="mt-1">
-    <!-- <v-col cols="12" sm="12" md="4">
-      <v-select label="Select record per page." :items="perPage" v-model="tableData.perPage" @update:modelValue="filterUsers"></v-select>
-    </v-col> -->
-    <v-col cols="12" sm="12" md="10">
+    <v-col cols="12" sm="12" md="2">
+      <v-select label="Select record per page." :items="perPage" v-model="tableData.perPage"></v-select>
+    </v-col>
+    <v-col cols="12" sm="12" md="8">
       <v-text-field v-model="search" label="Search here"></v-text-field>
     </v-col>
     <v-col cols="12" sm="12" md="2" class="text-right">
@@ -15,12 +15,15 @@
 
   <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" class="elevation-1" > -->
   <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" :page.sync="tableData.currentPage" class="elevation-1"> -->
-  <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage"
-    class="elevation-1">
-    <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage" :server-items-length="tableData.totalItems"
+  <!-- <v-data-table :headers="headers" :items="tableData.items" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage"
     class="elevation-1"> -->
-    <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage"
+  <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage" :server-items-length="tableData.totalItems"
+    class="elevation-1"> -->
+  <!-- <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'name', order: 'asc' }]" :search="search" v-model:page="tableData.currentPage" :items-per-page="tableData.perPage"
     :server-items-length="tableData.totalItems" :loading="tableData.loading" :hide-default-footer="true" disable-pagination class="elevation-1"> -->
+
+  <v-data-table-server v-model:page="tableData.currentPage" :search="search" v-model:items-per-page="tableData.perPage" :headers="headers" :items-length="tableData.totalItems" :items="tableData.items"
+    :loading="tableData.loading" class="elevation-1" item-value="name" @update:options="fetchData">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>USER LIST</v-toolbar-title>
@@ -89,7 +92,7 @@
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">
+      <v-btn color="primary" @click="fetchData">
         Reset
       </v-btn>
     </template>
@@ -98,7 +101,7 @@
     <!-- <template v-slot:bottom>
       <v-row class="mt-1">
         <v-col cols="12" sm="12" md="2">
-          <v-select label="Select record per page." :items="perPage" v-model="tableData.perPage" @update:modelValue="allUsers"></v-select>
+          <v-select label="Select record per page." :items="perPage" v-model="tableData.perPage" @update:modelValue="fetchData"></v-select>
         </v-col>
         <v-col cols="12" sm="12" md="10">
           <div class="text-center pt-2">
@@ -107,40 +110,30 @@
         </v-col>
       </v-row>
     </template> -->
-  </v-data-table>
+    <!-- </v-data-table> -->
+  </v-data-table-server>
 </template>
 <script>
 import { VDataTable } from 'vuetify/labs/VDataTable'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapState, mapGetters, mapActions } from "vuex";
 import axios from "axios";
 
 export default {
   components: {
     VDataTable: VDataTable,
+    VDataTableServer: VDataTableServer,
   },
 
   data: () => ({
     // Server side pagination
-    perPage: ["5", "10", "20", "30", "40", "50", "100"],
+    perPage: ["5", "10", "20", "30", "40", "50", "100", "500"],
     tableData: {
       items: [],
       totalItems: 0,
       currentPage: 1,
       perPage: 10,
-      loading: false,
-    },
-
-
-    // Vuetify pagination
-    pagination: {
-      last_page: "",
-      current_page: 1,
-      total: "",
-      last_page_url: "",
-      next_page_url: "",
-      prev_page_url: "",
-      from: "",
-      to: "",
+      loading: true,
     },
 
     page: 1,
@@ -156,7 +149,6 @@ export default {
       { title: 'Phone', key: 'phone' },
       { title: 'Actions', key: 'actions', sortable: false },
     ],
-    // users: [],
     editedIndex: -1,
     editedItem: {
       name: '',
@@ -177,7 +169,7 @@ export default {
 
   mounted() {
     if (this.logged_in) {
-      this.allUsers();
+      // this.fetchData();
     }
   },
 
@@ -208,6 +200,9 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete()
     },
+    name() {
+      this.search = String(Date.now())
+    },
   },
 
   methods: {
@@ -227,20 +222,21 @@ export default {
     // },
 
     editItem(item) {
-      this.editedIndex = this.users.indexOf(item)
+      this.editedIndex = this.tableData.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
 
     deleteItem(item) {
-      this.editedIndex = this.users.indexOf(item)
+      this.editedIndex = this.tableData.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
 
     deleteItemConfirm() {
-      this.handleDeleteUser(this.users[this.editedIndex].id);
+      this.handleDeleteUser(this.tableData.items[this.editedIndex].id);
       this.closeDelete()
+      this.fetchData();
     },
 
     close() {
@@ -261,87 +257,53 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        this.handleUpdateUser(this.users[this.editedIndex].id);
+        this.handleUpdateUser(this.tableData.items[this.editedIndex].id);
       } else {
         this.handleAddUser();
       }
       this.close()
-    },
-
-    allUsers: async function () {
-      try {
-        let info = await this.getUsers();
-        let response = JSON.parse(info);
-        
-        if (response.status == 200) {
-          this.tableData.totalItems = response.data.data.length;
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    },
-
-    allUsersData: async function () {
-      try {
-        let params = new URLSearchParams();
-        params.append("perPage", this.tableData.perPage);
-        params.append("currentPage", this.tableData.currentPage);
-
-        let info = await this.getUsers();
-        let response = JSON.parse(info);
-
-        if (response.status == 200) {
-          this.tableData.totalItems = response.data.data.length;
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    },
-
-    allUsersData: async function () {
-      console.log('filterUsers')
-      try {
-        let params = new URLSearchParams();
-        params.append("perPage", this.tableData.perPage);
-        params.append("currentPage", this.tableData.currentPage);
-        let info = await this.getUsersData(params);
-
-        let response = JSON.parse(info);
-        if (response.status == 200) {
-          console.log('200')
-          console.log(response.data.data.total)
-          this.tableData.totalItems = response.data.data.total;
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      this.fetchData();
     },
 
     fetchData: async function () {
-      console.log('Clicked');
-      // this.tableData.loading = true;
+      this.tableData.loading = true;
       try {
-        let response = await axios.get('http://127.0.0.1:8000/api/users', {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access_token"),
-          },
-          params: {
-            page: this.tableData.currentPage,
-            perPage: this.tableData.perPage,
-          },
-        });
-        console.log(response)
+        // Search only when the key length is enough
+        if (this.search != '' && this.search.length <= 2) {
+          return false
+        }
+
+        // let response = await axios.get('http://127.0.0.1:8000/api/users/get/data', {
+        //   headers: {
+        //     Accept: "application/json",
+        //     Authorization: "Bearer " + localStorage.getItem("access_token"),
+        //   },
+        //   params: {
+        //     page: this.tableData.currentPage,
+        //     perPage: this.tableData.perPage,
+        //     search: this.search
+        //   },
+        // });
+
+        let params = new URLSearchParams();
+        params.append("perPage", this.tableData.perPage);
+        params.append("page", this.tableData.currentPage);
+        params.append("search", this.search);
+
+        let info = await this.getUsersData(params);
+        let response = JSON.parse(info);
+
+
         if (response.status == 200) {
-          this.tableData.items = response.data.data;
-          this.tableData.totalItems = response.data.total;
+          // console.log(response.data.data)
+          this.tableData.totalItems = response.data.data.total;
+          this.tableData.items = response.data.data.data;
         }
 
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        console.log('finally');
-        // this.tableData.loading = false;
+        this.tableData.loading = false;
       }
     },
 

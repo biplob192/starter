@@ -1,4 +1,4 @@
-import RequisitionRouter from "./RequisitionRouter";
+// import SampleRouter from "./SampleRouter";
 
 export default [
   //   {
@@ -7,5 +7,5 @@ export default [
   //     component: UrlComponent,
   //   },
 
-  ...RequisitionRouter,
+  // ...SampleRouter,
 ];

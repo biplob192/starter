@@ -6,9 +6,6 @@ import * as actions from "./actions";
 
 // Import Modules
 import auth from "./modules/auth";
-import item from "./modules/item";
-import requisition from "./modules/requisition";
-import stock from "./modules/stock";
 import user from "./modules/user";
 
 const store = createStore({
@@ -20,9 +17,6 @@ const store = createStore({
 
   modules: {
     auth,
-    item,
-    requisition,
-    stock,
     user,
   },
 });

@@ -22,9 +22,11 @@ class UserRepository implements UserRepositoryInterface
     public function getData($request)
     {
         // Define the default page and perPage values
-        $page = $request->input('page', 1);
-        $perPage = $request->input('perPage', 10);
-        $searchValue = $request->input('search');
+        $page           = $request->input('page', 1);
+        $perPage        = $request->input('perPage', 10);
+        $searchValue    = $request->input('search');
+        $orderBy        = 'id';
+        $order          = 'desc';
 
         if ($request->input('perPage') == 'All') {
         }
@@ -46,7 +48,7 @@ class UserRepository implements UserRepositoryInterface
         // ->limit($perPage)
         // ->get();
 
-        // First method without handling all selected in frontend
+        // First method (end) without handling all selected in frontend
 
 
         // Second method with all selected in frontend
@@ -64,9 +66,9 @@ class UserRepository implements UserRepositoryInterface
             $usersQuery->offset($offset)->limit($perPage);
         }
 
-        $users = $usersQuery->get();
+        $users = $usersQuery->orderBy($orderBy, $order)->get();
 
-        // Second method with all selected in frontend
+        // Second method (end) with all selected in frontend
 
         // Get the total count of items (for pagination)
         $totalUsers = User::count(); // You can optimize this query if needed
