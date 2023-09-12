@@ -5,6 +5,7 @@ import * as mutations from "./mutations";
 import * as actions from "./actions";
 
 // Import Modules
+import admin from "./modules/admin";
 import auth from "./modules/auth";
 import user from "./modules/user";
 
@@ -16,6 +17,7 @@ const store = createStore({
   actions,
 
   modules: {
+    admin,
     auth,
     user,
   },

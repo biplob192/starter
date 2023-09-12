@@ -8,12 +8,14 @@
       <RouterLink v-show="!logged_in" to="/login">Login</RouterLink>
       <a v-show="logged_in" href="#" @click="logout">Logout</a>
       {{ (user_role) }}
+      {{ (userInfo.phone) }}
+      {{ (userInfo.roles[0].guard_name ? userInfo.roles[0].guard_name : '') }}
     </nav>
     <hr />
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import { RouterLink } from "vue-router";
 
 export default {
@@ -25,11 +27,15 @@ export default {
     };
   },
 
+  mounted() {
+  },
+
   computed: {
     ...mapGetters({
       logged_in: "loginStatus",
       user_role: "userRole",
     }),
+    ...mapGetters("admin", ["userInfo",]),
   },
 
   methods: {

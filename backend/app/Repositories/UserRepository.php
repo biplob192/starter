@@ -112,6 +112,17 @@ class UserRepository implements UserRepositoryInterface
     }
 
 
+    public function info()
+    {
+        // if (!$user = User::with(['roles'])->find($id)) {
+        if (!$user = auth()->user()) {
+            throw new Exception("No record found.", 404);
+        }
+
+        return ['data' => $user, 'message' => 'Single user data.', 'status' => 200];
+    }
+
+
     public function update($request, $id)
     {
         if (!$user = User::find($id)) {

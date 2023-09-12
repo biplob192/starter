@@ -14,7 +14,7 @@ export default {
   all() {
     return http().get(END_POINT);
   },
-  
+
   getData(params) {
     return http().get(`${END_POINT}/get/data?${params}`);
   },
@@ -26,8 +26,12 @@ export default {
   delete(id) {
     return http().delete(`${END_POINT}/${id}`);
   },
-  
+
   export() {
     return httpFile().get(`export/${END_POINT}`);
+  },
+
+  info() {
+    return http().get(`${END_POINT}/current/info`);
   },
 };

@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   name: "HomeView",
@@ -23,9 +23,13 @@ export default {
   },
 
   mounted() {
+    if (this.logged_in) {
+      this.getUserInfo();
+    }
   },
 
   methods: {
+    ...mapActions("admin", ["getUserInfo"]),
   },
 };
 </script>

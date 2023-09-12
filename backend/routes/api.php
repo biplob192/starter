@@ -46,6 +46,7 @@ Route::group(['middleware' => ['auth:api', 'role:Super_Admin|Admin|Employee']], 
     Route::get('users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::get('export/users', [UserController::class, 'export'])->name('users.export');
     Route::get('users/get/data', [UserController::class, 'getData'])->name('users.index');
+    Route::get('users/current/info', [UserController::class, 'info'])->name('users.info');
 });
 
 

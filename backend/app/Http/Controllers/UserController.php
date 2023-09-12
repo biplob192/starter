@@ -71,6 +71,20 @@ class UserController extends BaseController
     }
 
 
+    public function info()
+    {
+        // return auth()->user();
+        try {
+            $response = $this->userRepository->info();
+
+            return $this->sendResponse($response['data'], $response['message'], $response['status']);
+        } catch (Exception $e) {
+
+            return $this->sendError($e->getMessage() ? $e->getMessage() : 'Internal server error.', '', $e->getCode() ? $e->getCode() : 500);
+        }
+    }
+
+
     public function update(UserRequest $request, $id)
     {
         try {
